@@ -1,6 +1,4 @@
-﻿using System.IO;
-
-namespace Simple
+﻿namespace Simple
 {
     public static class Program
     {
@@ -12,8 +10,8 @@ namespace Simple
                 Guard.Exception("Please input filename as first argument!");
 
             Arguments.Parse(args);
-            Interpreter.IntializeFunctions();
-            Interpreter.ParseFile();
+            Interpreter.Reset();
+            new Interpreter(null).ParseFile(FilePath!);
         }
     }
 }

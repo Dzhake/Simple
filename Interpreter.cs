@@ -1,27 +1,37 @@
 ﻿namespace Simple;
 
-public static class Interpreter
+public class Interpreter
 {
-    public static Dictionary<string, Action<string>> Functions = new(StringComparer.InvariantCultureIgnoreCase);
-    public static void ParseFile()
+    public static Interpreter Current = new(null);
+    public static Dictionary<string, Action<string>> Functions = new();
+    public static Dictionary<string, int> GotoPositions = new();
+    public Interpreter? Parent;
+
+    
+    public int Line { get; protected set; }
+
+    public Interpreter(Interpreter? parent)
     {
-        string? filePath = Program.FilePath;
-        if (filePath == null) Guard.Exception("FilePath is null, but ParseFile is called!");
-        if (!File.Exists(filePath)) Guard.Exception("Specified file doesn't exist!");
-        string[] lines = File.ReadAllLines(filePath!);
-        foreach (string line in lines)
-            ParseLine(line);
+        Current = this;
+        Parent = parent;
     }
 
-    public static void IntializeFunctions()
+    public void ParseFile(string file)
     {
-        Functions = new(StringComparer.InvariantCultureIgnoreCase)
+        if (!File.Exists(file)) Guard.Exception("Specified file doesn't exist!");
+        string[] lines = File.ReadAllLines(file);
+
+        Line = 0;
+        while (Line < lines.Length)
         {
-            { nameof(Commands.Print), Commands.Print }
-        };
+            ParseLine(lines[Line]);
+            Line++;
+        }
     }
 
-    public static void ParseLine(string line)
+    
+
+    public void ParseLine(string line)
     {
         if (line.StartsWith("//")) return;
 
@@ -31,5 +41,24 @@ public static class Interpreter
 
         if (Functions.TryGetValue(command, out Action<string>? func))
             func(args);
+    }
+
+    public static void Reset()
+    {
+        IntializeFunctions();
+        GotoPositions = new(StringComparer.InvariantCultureIgnoreCase);
+    }
+
+    protected static void IntializeFunctions()
+    {
+        Functions = new(StringComparer.InvariantCultureIgnoreCase)
+        {
+            { nameof(Commands.Print), Commands.Print }
+        };
+    }
+
+    public static void JumpTo(int line)
+    {
+        Current.Line = line - 1;
     }
 }
