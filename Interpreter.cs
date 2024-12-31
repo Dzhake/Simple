@@ -1,31 +1,25 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Reflection;
+using System.Text.RegularExpressions;
 
 namespace Simple;
 
-public class Interpreter
+public static class Interpreter
 {
-    public static Interpreter Current = new(null);
     public static Dictionary<string, Action<string>> Functions;
     public static Dictionary<string, int> GotoPositions;
     public static Dictionary<string, bool> Variables;
-    public Interpreter? Parent;
+    private static readonly string[] IgnoredMethodNames = ["GetType", "ToString", "Equals", "GetHashCode"];
 
-    protected Regex VarRegex = new("{(.*?)}", RegexOptions.Compiled);
-    
-    public int Line { get; protected set; }
+    private static Regex VarRegex = new("{(.*?)}", RegexOptions.Compiled);
+
+    public static int Line;
 
     static Interpreter()
     {
         Reset();
     }
 
-    public Interpreter(Interpreter? parent)
-    {
-        Current = this;
-        Parent = parent;
-    }
-
-    public void ParseFile(string file)
+    public static void ParseFile(string file)
     {
         if (!File.Exists(file)) Guard.Exception("Specified file doesn't exist!");
         string[] lines = File.ReadAllLines(file);
@@ -40,13 +34,13 @@ public class Interpreter
 
     
 
-    public void ParseLine(string line)
+    public static void ParseLine(string line)
     {
         if (line.StartsWith("//")) return;
 
         foreach (Match match in VarRegex.Matches(line))
         {
-            string varName = match.Groups[0].Value;
+            string varName = match.Groups[1].Value;
             if (Variables.TryGetValue(varName, out bool var))
                 line = line.Replace(match.Value, var.ToString());
             else
@@ -55,8 +49,16 @@ public class Interpreter
             
 
         int funcLength = line.IndexOf(' ');
-        string command = line[..funcLength];
-        string args = line[(funcLength + 1)..];
+
+        string command;
+        string args = "";
+        if (funcLength <= 0)
+            command = line;
+        else
+        {
+            command = line[..funcLength];
+            args = line[(funcLength + 1)..];
+        }
 
         if (Functions.TryGetValue(command, out Action<string>? func))
             func(args);
@@ -69,16 +71,20 @@ public class Interpreter
         Variables = new(StringComparer.InvariantCultureIgnoreCase);
     }
 
-    protected static void IntializeFunctions()
+    private static void IntializeFunctions()
     {
-        Functions = new(StringComparer.InvariantCultureIgnoreCase)
+        Functions = new(StringComparer.InvariantCultureIgnoreCase);
+
+        foreach (MethodInfo method in typeof(Commands).GetMethods())
         {
-            { nameof(Commands.Print), Commands.Print }
-        };
+            if (!method.IsPublic || IgnoredMethodNames.Contains(method.Name)) continue;
+            object o;
+            Functions.Add(method.Name, method.CreateDelegate<Action<string>>());
+        }
     }
 
     public static void JumpTo(int line)
     {
-        Current.Line = line - 1;
+        Line = line - 1;
     }
 }

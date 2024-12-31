@@ -10,9 +10,9 @@ public static partial class Commands
         bool value = false;
         switch (args[1])
         {
-            case "0":
+            case "false":
                 break;
-            case "1":
+            case "true":
                 value = true;
                 break;
             default:

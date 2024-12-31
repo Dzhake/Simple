@@ -11,7 +11,7 @@
 
             Arguments.Parse(args);
             Interpreter.Reset();
-            new Interpreter(null).ParseFile(FilePath!);
+            Interpreter.ParseFile(FilePath!);
         }
     }
 }

@@ -14,7 +14,7 @@ public static class Guard
 
     public static void RuntimeException(string exception, int code = 2)
     {
-        Exception($"{exception}\n  at line: {Interpreter.Current.Line}\n", code);
+        Exception($"{exception}\n  at line: {Interpreter.Line}\n", code);
     }
 
     public static void GotoNotFound(string gotoName)
