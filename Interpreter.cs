@@ -1,14 +1,23 @@
-﻿namespace Simple;
+﻿using System.Text.RegularExpressions;
+
+namespace Simple;
 
 public class Interpreter
 {
     public static Interpreter Current = new(null);
-    public static Dictionary<string, Action<string>> Functions = new();
-    public static Dictionary<string, int> GotoPositions = new();
+    public static Dictionary<string, Action<string>> Functions;
+    public static Dictionary<string, int> GotoPositions;
+    public static Dictionary<string, bool> Variables;
     public Interpreter? Parent;
 
+    protected Regex VarRegex = new("{(.*?)}", RegexOptions.Compiled);
     
     public int Line { get; protected set; }
+
+    static Interpreter()
+    {
+        Reset();
+    }
 
     public Interpreter(Interpreter? parent)
     {
@@ -35,6 +44,16 @@ public class Interpreter
     {
         if (line.StartsWith("//")) return;
 
+        foreach (Match match in VarRegex.Matches(line))
+        {
+            string varName = match.Groups[0].Value;
+            if (Variables.TryGetValue(varName, out bool var))
+                line = line.Replace(match.Value, var.ToString());
+            else
+                Guard.UndefinedVariable(varName);
+        }
+            
+
         int funcLength = line.IndexOf(' ');
         string command = line[..funcLength];
         string args = line[(funcLength + 1)..];
@@ -47,6 +66,7 @@ public class Interpreter
     {
         IntializeFunctions();
         GotoPositions = new(StringComparer.InvariantCultureIgnoreCase);
+        Variables = new(StringComparer.InvariantCultureIgnoreCase);
     }
 
     protected static void IntializeFunctions()

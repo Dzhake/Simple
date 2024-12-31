@@ -2,8 +2,8 @@
 
 public static partial class Commands
 {
-    public static void Print(string args)
+    public static void Print(string arg)
     {
-        Console.Write(args);
+        Console.Write(arg);
     }
 }

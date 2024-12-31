@@ -2,12 +2,12 @@
 
 public static partial class Commands
 {
-    public static void Goto(string args)
+    public static void Goto(string arg)
     {
-        if (args.Length == 0) Guard.WrongArgsCount(1, 0);
-        if (Interpreter.GotoPositions.TryGetValue(args, out int newLine))
+        if (arg.Length == 0) Guard.WrongArgsCount(1, 0);
+        if (Interpreter.GotoPositions.TryGetValue(arg, out int newLine))
             Interpreter.JumpTo(newLine);
         else
-            Guard.GotoNotFound(args);
+            Guard.GotoNotFound(arg);
     }
 }

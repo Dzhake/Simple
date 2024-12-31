@@ -26,4 +26,14 @@ public static class Guard
     {
         RuntimeException($"Excepted {expected} arguments, got {got}");
     }
+
+    public static void InvalidArgument(int argumenIndex)
+    {
+        RuntimeException($"Invalid argument with index {argumenIndex}");
+    }
+
+    public static void UndefinedVariable(string variableName)
+    {
+        RuntimeException($"Tried to get undefined variable \'{variableName}\'");
+    }
 }
