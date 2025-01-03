@@ -14,6 +14,7 @@ public static class Interpreter
     private static Regex VarRegex = new("{(.*?)}", RegexOptions.Compiled);
 
     public static int Line;
+    public static string[] Lines;
 
     static Interpreter()
     {
@@ -42,16 +43,15 @@ public static class Interpreter
 
 
 
-
     public static void ParseFile(string file)
     {
         if (!File.Exists(file)) Guard.Exception("Specified file doesn't exist!");
-        string[] lines = File.ReadAllLines(file);
+        Lines = File.ReadAllLines(file);
 
         Line = 0;
-        while (Line < lines.Length)
+        while (Line < Lines.Length)
         {
-            ParseLine(lines[Line]);
+            ParseLine(Lines[Line]);
             Line++;
         }
     }

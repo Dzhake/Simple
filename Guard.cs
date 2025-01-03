@@ -3,8 +3,9 @@
 public static class Guard
 {
     /*Exit codes
+     0 - EOF/Exit command
      1 - General
-     2 - Whilte interpreting.
+     2 - While interpreting.
      */
     public static void Exception(string exception, int code = 1)
     {
@@ -14,7 +15,7 @@ public static class Guard
 
     public static void RuntimeException(string exception, int code = 2)
     {
-        Exception($"{exception}\n  at line: {Interpreter.Line}\n", code);
+        Exception($"{exception}\n  at line: {Interpreter.Line}\n> {Interpreter.Lines[Interpreter.Line]}", code);
     }
 
     public static void LabelNotFound(string gotoName)
