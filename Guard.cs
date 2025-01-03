@@ -17,9 +17,9 @@ public static class Guard
         Exception($"{exception}\n  at line: {Interpreter.Line}\n", code);
     }
 
-    public static void GotoNotFound(string gotoName)
+    public static void LabelNotFound(string gotoName)
     {
-        RuntimeException($"Goto {gotoName} not found!");
+        RuntimeException($"Label {gotoName} not found");
     }
 
     public static void WrongArgsCount(int expected, int got)
@@ -35,5 +35,15 @@ public static class Guard
     public static void UndefinedVariable(string variableName)
     {
         RuntimeException($"Tried to get undefined variable \'{variableName}\'");
+    }
+
+    public static void EmptyStack()
+    {
+        RuntimeException("Tried to get value from empty stack");
+    }
+
+    public static void InvalidBool(string boolean)
+    {
+        RuntimeException($"Tried to parse invalid string as bool: {boolean}");
     }
 }

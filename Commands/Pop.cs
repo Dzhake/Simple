@@ -2,8 +2,8 @@
 
 public static partial class Commands
 {
-    public static void Print(string _)
+    public static void Pop(string arg)
     {
-        Console.Write(Stack.Pop());
+        Stack.Pop();
     }
 }

@@ -8,6 +8,7 @@ public static class Interpreter
     public static Dictionary<string, Action<string>> Functions;
     public static Dictionary<string, int> GotoPositions;
     public static Dictionary<string, bool> Variables;
+    public static Stack<bool> Stack;
     private static readonly string[] IgnoredMethodNames = ["GetType", "ToString", "Equals", "GetHashCode"];
 
     private static Regex VarRegex = new("{(.*?)}", RegexOptions.Compiled);
@@ -18,6 +19,29 @@ public static class Interpreter
     {
         Reset();
     }
+
+    public static void Reset()
+    {
+        IntializeFunctions();
+        GotoPositions = new(StringComparer.InvariantCultureIgnoreCase);
+        Variables = new(StringComparer.InvariantCultureIgnoreCase);
+        Stack = new(5);
+    }
+
+    private static void IntializeFunctions()
+    {
+        Functions = new(StringComparer.InvariantCultureIgnoreCase);
+
+        foreach (MethodInfo method in typeof(Commands).GetMethods())
+        {
+            if (!method.IsPublic || IgnoredMethodNames.Contains(method.Name)) continue;
+            object o;
+            Functions.Add(method.Name, method.CreateDelegate<Action<string>>());
+        }
+    }
+
+
+
 
     public static void ParseFile(string file)
     {
@@ -31,8 +55,6 @@ public static class Interpreter
             Line++;
         }
     }
-
-    
 
     public static void ParseLine(string line)
     {
@@ -62,25 +84,6 @@ public static class Interpreter
 
         if (Functions.TryGetValue(command, out Action<string>? func))
             func(args);
-    }
-
-    public static void Reset()
-    {
-        IntializeFunctions();
-        GotoPositions = new(StringComparer.InvariantCultureIgnoreCase);
-        Variables = new(StringComparer.InvariantCultureIgnoreCase);
-    }
-
-    private static void IntializeFunctions()
-    {
-        Functions = new(StringComparer.InvariantCultureIgnoreCase);
-
-        foreach (MethodInfo method in typeof(Commands).GetMethods())
-        {
-            if (!method.IsPublic || IgnoredMethodNames.Contains(method.Name)) continue;
-            object o;
-            Functions.Add(method.Name, method.CreateDelegate<Action<string>>());
-        }
     }
 
     public static void JumpTo(int line)

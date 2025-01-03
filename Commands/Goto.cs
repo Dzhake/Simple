@@ -8,6 +8,6 @@ public static partial class Commands
         if (Interpreter.GotoPositions.TryGetValue(arg, out int newLine))
             Interpreter.JumpTo(newLine);
         else
-            Guard.GotoNotFound(arg);
+            Guard.LabelNotFound(arg);
     }
 }

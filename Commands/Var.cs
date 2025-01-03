@@ -4,22 +4,8 @@ public static partial class Commands
 {
     public static void Var(string arg)
     {
-        string[] args = arg.Split(' ');
-        if (args.Length <= 1) Guard.WrongArgsCount(2, args.Length);
+        if (arg.Length <= 1) Guard.WrongArgsCount(1, 0);
 
-        bool value = false;
-        switch (args[1])
-        {
-            case "false":
-                break;
-            case "true":
-                value = true;
-                break;
-            default:
-                Guard.InvalidArgument(2);
-                break;
-        }
-
-        Interpreter.Variables[args[0]] = value;
+        Interpreter.Variables[arg] = Stack.Pop();
     }
 }
